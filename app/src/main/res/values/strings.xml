@@ -2,4 +2,7 @@
     <string name="app_name">Surfing Spots</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="wheater_condition">%1$s - %2$d° degrees</string>
+    <string name="cloudy">Cloudy</string>
+    <string name="sunny">Sunny</string>
 </resources>

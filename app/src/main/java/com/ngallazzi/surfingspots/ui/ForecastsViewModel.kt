@@ -27,8 +27,8 @@ class ForecastsViewModel @ViewModelInject constructor(
             _dataLoading.postValue(true)
             when (val result = citiesRepository.getCities(forceUpdate)) {
                 is Result.Success -> {
-                    result.data.let {
-                        _cities.postValue(it)
+                    result.data.let { cityList ->
+                        _cities.postValue(cityList.sortedByDescending { it.temperature })
                     }
                 }
                 is Result.Error -> {
