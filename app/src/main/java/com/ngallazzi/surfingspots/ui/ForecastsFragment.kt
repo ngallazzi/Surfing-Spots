@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.ngallazzi.surfingspots.R
 import com.ngallazzi.surfingspots.data.cities.City
 import com.ngallazzi.surfingspots.ui.adapters.CityAdapter
@@ -57,6 +58,14 @@ class ForecastsFragment : Fragment() {
                 cities.sortByDescending { it.temperature }
                 rvCitiesForecasts.adapter?.notifyDataSetChanged()
             }
+        })
+
+        forecastsViewModel.error.observe(viewLifecycleOwner, {
+            Snackbar.make(
+                clForecastContainer,
+                getString(R.string.an_error_has_occurred, it),
+                Snackbar.LENGTH_SHORT
+            ).show()
         })
     }
 }

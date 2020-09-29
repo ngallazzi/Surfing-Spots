@@ -17,7 +17,7 @@ class CitiesRemoteDataSource @Inject constructor(private val service: CitiesApi)
             if (response.isSuccessful) {
                 return@withContext Result.Success(response.body()!!.cities)
             } else {
-                return@withContext Result.Error(Exception(Exceptions.GENERIC_NETWORK_ERROR))
+                return@withContext Result.Error(Exception(Exceptions.SERVER_ERROR))
             }
         } catch (e: Exception) {
             return@withContext Result.Error(e)

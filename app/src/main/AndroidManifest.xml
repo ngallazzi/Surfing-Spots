@@ -3,7 +3,6 @@
     package="com.ngallazzi.surfingspots">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- todo make this compatible with versions before api 23 -->
     <application
         android:name=".SurfingSpotsApplication"
         android:allowBackup="true"

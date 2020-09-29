@@ -61,17 +61,23 @@ class ForecastsViewModel @ViewModelInject constructor(
                 temperaturesHandlerActive = true
                 // Do something here on the main thread, we can call api since it's main safe
                 runBlocking {
-                    val temperature = temperaturesRepository.getRandomTemperature(true)
-                    Timber.v("Random temperature fetched: $temperature")
-                    temperature?.let { temperatureUpdate ->
-                        citiesRepository.getLessRecentlyUpdatedCity()?.run {
-                            citiesRepository.updateCityTemperature(
-                                this.name,
-                                temperatureUpdate
-                            )
-                            citiesRepository.getCityByName(this.name)?.run {
-                                postTemperatureUpdate(this)
+                    when (val result = temperaturesRepository.getRandomTemperature(true)) {
+                        is Result.Success -> {
+                            Timber.v("Random temperature fetched: ${result.data}")
+                            result.data?.let { temperatureUpdate ->
+                                citiesRepository.getLessRecentlyUpdatedCity()?.run {
+                                    citiesRepository.updateCityTemperature(
+                                        this.name,
+                                        temperatureUpdate
+                                    )
+                                    citiesRepository.getCityByName(this.name)?.run {
+                                        postTemperatureUpdate(this)
+                                    }
+                                }
                             }
+                        }
+                        is Result.Error -> {
+                            _error.postValue(result.exception.message)
                         }
                     }
                 }

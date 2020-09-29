@@ -6,6 +6,7 @@ import com.ngallazzi.surfingspots.data.cities.local.CitiesLocalDataSource
 import com.ngallazzi.surfingspots.data.cities.remote.CitiesRemoteDataSource
 import com.ngallazzi.surfingspots.data.temperatures.TemperaturesRepository
 import org.threeten.bp.LocalDateTime
+import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -29,7 +30,7 @@ class CitiesRepositoryImpl @Inject constructor(
                         result
                     }
                     is Result.Error -> {
-                        Result.Error(Exception(Exceptions.SERVER_ERROR))
+                        Result.Error(result.exception)
                     }
                 }
             }
@@ -49,11 +50,16 @@ class CitiesRepositoryImpl @Inject constructor(
         return localDataSource.getCityByName(cityName)
     }
 
-    private suspend fun assignRandomTemperatures(cities: List<City>) {
-        for (city in cities) {
-            city.temperature = temperaturesRepository.getRandomTemperature(false)
+    private suspend fun assignRandomTemperatures(cities: List<City>) =
+        try {
+            for (city in cities) {
+                val result =
+                    temperaturesRepository.getRandomTemperature(false) as Result.Success<Int?>
+                city.temperature = result.data
+            }
+        } catch (e: Exception) {
+            Timber.d(e)
         }
-    }
 
     private fun assignImages(cities: List<City>) {
         for (city in cities) {
