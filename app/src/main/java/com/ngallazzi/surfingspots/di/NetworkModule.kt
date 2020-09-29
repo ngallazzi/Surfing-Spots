@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -34,22 +35,31 @@ class NetworkModule {
     @Provides
     @Singleton
     fun createCitiesInterface(): CitiesApi {
-        val retrofit = getRetrofit(BuildConfig.CITY_NAMES_API_ENDPOINT, provideMoshi())
+        val retrofit = getRetrofitForCities(provideMoshi())
         return retrofit.create(CitiesApi::class.java)
     }
 
     @Provides
     @Singleton
     fun createTemperatureInterface(): TemperaturesApi {
-        val retrofit = getRetrofit(BuildConfig.RANDOM_TEMPERATURES_API_ENDPOINT, provideMoshi())
+        val retrofit = getRetrofitForTemperatures()
         return retrofit.create(TemperaturesApi::class.java)
     }
 
-    private fun getRetrofit(url: String, moshi: Moshi): Retrofit {
+    private fun getRetrofitForCities(moshi: Moshi): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(url)
+            .baseUrl(BuildConfig.CITY_NAMES_API_ENDPOINT)
             .client(httpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .build()
+    }
+
+    private fun getRetrofitForTemperatures(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.RANDOM_TEMPERATURES_API_ENDPOINT)
+            .client(httpClient)
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
     }

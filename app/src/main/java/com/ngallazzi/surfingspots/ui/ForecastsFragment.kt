@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ngallazzi.surfingspots.R
 import com.ngallazzi.surfingspots.data.cities.City
@@ -48,5 +49,14 @@ class ForecastsFragment : Fragment() {
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
             adapter = CityAdapter(cities, requireContext())
         }
+
+        forecastsViewModel.lastUpdatedCity.observe(viewLifecycleOwner, { city ->
+            cities.indexOf(city).let { index ->
+                cities[index].temperature = city.temperature
+                Timber.v("Updated city: ${city.name}, temperature: ${city.temperature}")
+                cities.sortByDescending { it.temperature }
+                rvCitiesForecasts.adapter?.notifyDataSetChanged()
+            }
+        })
     }
 }

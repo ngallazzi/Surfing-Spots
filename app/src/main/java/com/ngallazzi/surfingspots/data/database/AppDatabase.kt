@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ngallazzi.surfingspots.data.cities.City
 
-@Database(entities = [City::class], version = 3, exportSchema = false)
+@Database(entities = [City::class], version = 4, exportSchema = false)
 
 @TypeConverters(
     LocalDateTimeConverter::class)

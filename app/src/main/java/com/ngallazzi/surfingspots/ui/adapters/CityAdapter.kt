@@ -49,7 +49,12 @@ class CityAdapter(
                             context.getString(R.string.sunny),
                             degrees
                         )
-                        holder.clCityInfoContainer.setBackgroundColor(ContextCompat.getColor(context, R.color.colorCityInfoBackground))
+                        holder.clCityInfoContainer.setBackgroundColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.colorCityInfoBackground
+                            )
+                        )
                     }
                     is WeatherCondition.Cloudy -> {
                         holder.tvCityForecast.text = context.getString(

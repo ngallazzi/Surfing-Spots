@@ -8,7 +8,7 @@ class TemperaturesRepositoryImpl @Inject constructor(
     private val localDataSource: TemperaturesLocalDataSource,
     private val remoteDataSource: TemperaturesRemoteDataSource
 ) : TemperaturesRepository {
-    override suspend fun getRandomTemperature(forceUpdate: Boolean): Int {
+    override suspend fun getRandomTemperature(forceUpdate: Boolean): Int? {
         return when (forceUpdate) {
             true -> remoteDataSource.getRandomTemperature()
             false -> localDataSource.getRandomTemperature()

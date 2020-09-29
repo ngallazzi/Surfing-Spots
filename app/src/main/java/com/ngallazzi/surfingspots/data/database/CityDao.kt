@@ -9,6 +9,9 @@ import org.threeten.bp.LocalDateTime
 
 @Dao
 interface CityDao {
+    @Query("SELECT * FROM `City` WHERE name = :name")
+    suspend fun getCityByName(name: String): City?
+
     @Query("SELECT * FROM `City` ORDER BY temperature DESC")
     suspend fun getCities(): List<City>
 

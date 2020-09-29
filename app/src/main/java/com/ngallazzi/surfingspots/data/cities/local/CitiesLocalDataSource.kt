@@ -31,7 +31,15 @@ class CitiesLocalDataSource @Inject constructor(
         cityDao.insertCities(cities)
     }
 
-    suspend fun updateCityTemperature(name: String, temperature: Int) {
-        cityDao.updateCityTemperature(name, temperature, LocalDateTime.now())
+    suspend fun updateCityTemperature(cityName: String, temperature: Int, date: LocalDateTime) {
+        cityDao.updateCityTemperature(cityName, temperature, date)
+    }
+
+    suspend fun getLessRecentlyUpdatedCity(): City? {
+        return cityDao.getCities().minByOrNull { it.lastUpdate }
+    }
+
+    suspend fun getCityByName(name : String): City? {
+        return cityDao.getCityByName(name)
     }
 }

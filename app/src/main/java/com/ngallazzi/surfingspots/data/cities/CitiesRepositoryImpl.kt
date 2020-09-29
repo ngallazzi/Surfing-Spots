@@ -37,6 +37,18 @@ class CitiesRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getLessRecentlyUpdatedCity(): City? {
+        return localDataSource.getLessRecentlyUpdatedCity()
+    }
+
+    override suspend fun updateCityTemperature(cityName: String, temperature: Int) {
+        localDataSource.updateCityTemperature(cityName, temperature, LocalDateTime.now())
+    }
+
+    override suspend fun getCityByName(cityName: String): City? {
+        return localDataSource.getCityByName(cityName)
+    }
+
     private suspend fun assignRandomTemperatures(cities: List<City>) {
         for (city in cities) {
             city.temperature = temperaturesRepository.getRandomTemperature(false)
