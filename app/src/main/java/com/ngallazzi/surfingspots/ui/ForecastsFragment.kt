@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.ngallazzi.surfingspots.R
@@ -19,10 +20,12 @@ import timber.log.Timber
 @AndroidEntryPoint
 class ForecastsFragment : Fragment() {
     private val forecastsViewModel: ForecastsViewModel by viewModels()
-    private val cities: ArrayList<City> = arrayListOf()
+    private lateinit var cityAdapter: CityAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         forecastsViewModel.getCities(true)
+        cityAdapter = CityAdapter(requireContext())
     }
 
     override fun onCreateView(
@@ -40,25 +43,14 @@ class ForecastsFragment : Fragment() {
         })
 
         forecastsViewModel.cities.observe(viewLifecycleOwner, {
-            cities.clear()
-            cities.addAll(it)
-            rvCitiesForecasts.adapter?.notifyDataSetChanged()
+            cityAdapter.submitUpdate(it)
         })
 
         rvCitiesForecasts.apply {
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-            adapter = CityAdapter(cities, requireContext())
+            adapter = cityAdapter
         }
-
-        forecastsViewModel.lastUpdatedCity.observe(viewLifecycleOwner, { city ->
-            cities.indexOf(city).let { index ->
-                cities[index].temperature = city.temperature
-                Timber.v("Updated city: ${city.name}, temperature: ${city.temperature}")
-                cities.sortByDescending { it.temperature }
-                rvCitiesForecasts.adapter?.notifyDataSetChanged()
-            }
-        })
 
         forecastsViewModel.error.observe(viewLifecycleOwner, {
             Snackbar.make(

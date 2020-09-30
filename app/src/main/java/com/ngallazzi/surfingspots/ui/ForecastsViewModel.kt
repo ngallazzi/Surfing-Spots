@@ -25,9 +25,6 @@ class ForecastsViewModel @ViewModelInject constructor(
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
-    private val _lastUpdatedCity = MutableLiveData<City>()
-    val lastUpdatedCity: LiveData<City> = _lastUpdatedCity
-
     private val _cities = MutableLiveData<List<City>>()
     val cities: LiveData<List<City>> = _cities
 
@@ -70,8 +67,15 @@ class ForecastsViewModel @ViewModelInject constructor(
                                         this.name,
                                         temperatureUpdate
                                     )
-                                    citiesRepository.getCityByName(this.name)?.run {
-                                        postTemperatureUpdate(this)
+                                }
+                                val citiesUpdateResult: Result<List<City>> =
+                                    citiesRepository.getCities(false)
+                                when (citiesUpdateResult) {
+                                    is Result.Success -> {
+                                        citiesUpdateResult.data.let { cityList ->
+                                            _cities.postValue(cityList.sortedByDescending { it.temperature })
+                                        }
+                                        Timber.v("Updated city: ")
                                     }
                                 }
                             }
@@ -88,12 +92,9 @@ class ForecastsViewModel @ViewModelInject constructor(
         temperaturesHandler.post(runnableCode)
     }
 
-    private fun postTemperatureUpdate(updatedCity: City) {
-        _cities.value?.find { it.name == updatedCity.name }?.run {
-            this.temperature = updatedCity.temperature
-            this.lastUpdate = updatedCity.lastUpdate
-            _lastUpdatedCity.postValue(this)
-        }
+    private fun postTemperatureUpdate(cities: List<City>) {
+        val citiesList = ArrayList(_cities.value!!)
+
     }
 
     override fun onCleared() {

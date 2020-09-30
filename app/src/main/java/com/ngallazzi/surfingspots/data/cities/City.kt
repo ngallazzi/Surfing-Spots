@@ -8,4 +8,5 @@ import org.threeten.bp.LocalDateTime
 data class City(@PrimaryKey val name: String,
                 var imageUrl : String? = null,
                 var temperature: Int? = null,
-                var lastUpdate : LocalDateTime = LocalDateTime.MIN)
+                var lastUpdate : LocalDateTime = LocalDateTime.MIN) {
+}
