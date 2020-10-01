@@ -14,8 +14,7 @@ import javax.inject.Inject
 
 class CitiesRepositoryImpl @Inject constructor(
     private val localDataSource: CitiesLocalDataSource,
-    private val remoteDataSource: CitiesRemoteDataSource,
-    private val temperaturesRepository: TemperaturesRepository
+    private val remoteDataSource: CitiesRemoteDataSource
 ) :
     CitiesRepository {
     override suspend fun getCities(forceUpdate: Boolean): Result<List<City>> {
@@ -24,7 +23,6 @@ class CitiesRepositoryImpl @Inject constructor(
                 when (val result = remoteDataSource.getCities()) {
                     is Result.Success -> {
                         result.data.apply {
-                            assignRandomTemperatures(this)
                             assignImages(this)
                             localDataSource.insertCities(this, LocalDateTime.now())
                         }
@@ -54,25 +52,6 @@ class CitiesRepositoryImpl @Inject constructor(
     override suspend fun getCityByName(cityName: String): City? {
         return localDataSource.getCityByName(cityName)
     }
-
-    private suspend fun assignRandomTemperatures(cities: List<City>) =
-        try {
-            for (city in cities) {
-                val result =
-                    temperaturesRepository.getRandomTemperature(false)
-                when (result) {
-                    is Result.Success -> {
-                        localDataSource.updateCityTemperature(
-                            city.name,
-                            result.data!!,
-                            LocalDateTime.now()
-                        )
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Timber.d(e)
-        }
 
     private fun assignImages(cities: List<City>) {
         for (city in cities) {

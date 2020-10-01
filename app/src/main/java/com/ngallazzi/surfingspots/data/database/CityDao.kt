@@ -35,11 +35,10 @@ interface CityDao {
     suspend fun getCities(): List<City>
 
     /**
-     * Insert a set of cities in the cities table.
+     * Insert a set of cities in the cities table, ignores the update if the city already exists
      * @param cities the list of cities to be inserted.
-     * @return all cities ordered by temperature descending.
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCities(cities: List<City>)
 
     /**

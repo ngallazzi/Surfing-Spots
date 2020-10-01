@@ -1,5 +1,6 @@
 package com.ngallazzi.surfingspots.ui
 
+import android.os.Handler
 import android.os.Looper
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
@@ -25,18 +26,21 @@ class ForecastsViewModel @ViewModelInject constructor(
 
     private val _forceUpdate = MutableLiveData(false)
 
-    private val temperaturesHandler = android.os.Handler(Looper.getMainLooper())
-
-    init {
-        scheduleTemperatureUpdates()
-    }
+    private val temperaturesHandler = Handler(Looper.getMainLooper())
 
     // everytime that _forceUpdate updates its value switchMap body is executed
     private val _cities: LiveData<List<City>> = _forceUpdate.switchMap { forceUpdate ->
         if (forceUpdate) {
             _dataLoading.value = true
             viewModelScope.launch {
-                citiesRepository.getCities(true)
+                when (val result = citiesRepository.getCities(true)) {
+                    is Result.Success -> {
+                        scheduleTemperatureUpdates()
+                    }
+                    is Result.Error -> {
+                        _error.postValue(result.exception.message)
+                    }
+                }
                 _dataLoading.value = false
             }
         }
@@ -71,8 +75,8 @@ class ForecastsViewModel @ViewModelInject constructor(
                 temperaturesHandler.postDelayed(this, periodInSeconds)
             }
         }
-        // Starts the initial runnable task by posting through the handler
-        temperaturesHandler.post(runnableCode)
+        // Starts the initial runnable task by posting through the handler, delayed by 5 seconds
+        temperaturesHandler.postDelayed(runnableCode, INITIAL_DELAY)
     }
 
     fun loadCities(forceUpdate: Boolean) {
@@ -103,5 +107,6 @@ class ForecastsViewModel @ViewModelInject constructor(
 
     companion object {
         val UPDATES_PERIOD = TimeUnit.SECONDS.toMillis(3)
+        val INITIAL_DELAY = TimeUnit.SECONDS.toMillis(5)
     }
 }
