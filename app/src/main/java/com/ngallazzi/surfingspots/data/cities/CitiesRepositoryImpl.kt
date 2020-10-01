@@ -1,5 +1,6 @@
 package com.ngallazzi.surfingspots.data.cities
 
+import androidx.lifecycle.LiveData
 import com.ngallazzi.surfingspots.Exceptions
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.local.CitiesLocalDataSource
@@ -38,6 +39,10 @@ class CitiesRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeCities(): LiveData<Result<List<City>>> {
+        return localDataSource.observeCities()
+    }
+
     override suspend fun getLessRecentlyUpdatedCity(): City? {
         return localDataSource.getLessRecentlyUpdatedCity()
     }
@@ -54,8 +59,16 @@ class CitiesRepositoryImpl @Inject constructor(
         try {
             for (city in cities) {
                 val result =
-                    temperaturesRepository.getRandomTemperature(false) as Result.Success<Int?>
-                city.temperature = result.data
+                    temperaturesRepository.getRandomTemperature(false)
+                when (result) {
+                    is Result.Success -> {
+                        localDataSource.updateCityTemperature(
+                            city.name,
+                            result.data!!,
+                            LocalDateTime.now()
+                        )
+                    }
+                }
             }
         } catch (e: Exception) {
             Timber.d(e)

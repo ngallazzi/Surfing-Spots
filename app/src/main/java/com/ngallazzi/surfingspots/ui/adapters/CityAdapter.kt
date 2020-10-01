@@ -1,7 +1,6 @@
 package com.ngallazzi.surfingspots.ui.adapters
 
 import android.content.Context
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,7 +55,7 @@ class CityAdapter(private val context: Context) :
                             .load(this.imageUrl)
                             .into(holder.ivCity)
                         holder.tvCityForecast.text = context.getString(
-                            R.string.wheater_condition,
+                            R.string.weather_condition,
                             context.getString(R.string.sunny),
                             degrees
                         )
@@ -69,12 +68,14 @@ class CityAdapter(private val context: Context) :
                     }
                     is WeatherCondition.Cloudy -> {
                         holder.tvCityForecast.text = context.getString(
-                            R.string.wheater_condition,
+                            R.string.weather_condition,
                             context.getString(R.string.cloudy),
                             degrees
                         )
                     }
                 }
+            } ?: run {
+                holder.tvCityForecast.text = context.getString(R.string.no_weather_condition_yet)
             }
         }
     }
