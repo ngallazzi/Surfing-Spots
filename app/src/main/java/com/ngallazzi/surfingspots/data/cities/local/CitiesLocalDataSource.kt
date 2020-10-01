@@ -1,5 +1,7 @@
 package com.ngallazzi.surfingspots.data.cities.local
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.ngallazzi.surfingspots.Exceptions
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.CitiesDataSource
@@ -24,6 +26,12 @@ class CitiesLocalDataSource @Inject constructor(
         }
     }
 
+    override fun observeCities(): LiveData<Result<List<City>>> {
+        return cityDao.observeCities().map {
+            Result.Success(it)
+        }
+    }
+
     suspend fun insertCities(cities: List<City>, date: LocalDateTime) = withContext(dispatcher) {
         for (city in cities) {
             city.lastUpdate = date
@@ -39,7 +47,7 @@ class CitiesLocalDataSource @Inject constructor(
         return cityDao.getCities().minByOrNull { it.lastUpdate }
     }
 
-    suspend fun getCityByName(name : String): City? {
+    suspend fun getCityByName(name: String): City? {
         return cityDao.getCityByName(name)
     }
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Surfing Spots</string>
-    <string name="wheater_condition">%1$s - %2$d° degrees</string>
+    <string name="weather_condition">%1$s - %2$d° degrees</string>
+    <string name="no_weather_condition_yet">No weather condition yet</string>
     <string name="cloudy">Cloudy</string>
     <string name="sunny">Sunny</string>
     <string name="an_error_has_occurred">An error has occurred: %1$s</string>

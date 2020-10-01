@@ -1,11 +1,9 @@
 package com.ngallazzi.surfingspots.ui
 
+import android.os.Handler
 import android.os.Looper
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.CitiesRepository
 import com.ngallazzi.surfingspots.data.cities.City
@@ -19,46 +17,41 @@ class ForecastsViewModel @ViewModelInject constructor(
     private val citiesRepository: CitiesRepository,
     private val temperaturesRepository: TemperaturesRepository
 ) : ViewModel() {
+
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
-    private val _lastUpdatedCity = MutableLiveData<City>()
-    val lastUpdatedCity: LiveData<City> = _lastUpdatedCity
+    private val _forceUpdate = MutableLiveData(false)
 
-    private val _cities = MutableLiveData<List<City>>()
-    val cities: LiveData<List<City>> = _cities
+    private val temperaturesHandler = Handler(Looper.getMainLooper())
 
-    private val temperaturesHandler = android.os.Handler(Looper.getMainLooper())
-    private var temperaturesHandlerActive = false
-
-
-    fun getCities(forceUpdate: Boolean) {
-        viewModelScope.launch {
-            _dataLoading.postValue(true)
-            when (val result = citiesRepository.getCities(forceUpdate)) {
-                is Result.Success -> {
-                    result.data.let { cityList ->
-                        _cities.postValue(cityList.sortedByDescending { it.temperature })
-                        if (!temperaturesHandlerActive) {
-                            scheduleTemperatureUpdates()
-                        }
+    // everytime that _forceUpdate updates its value switchMap body is executed
+    private val _cities: LiveData<List<City>> = _forceUpdate.switchMap { forceUpdate ->
+        if (forceUpdate) {
+            _dataLoading.value = true
+            viewModelScope.launch {
+                when (val result = citiesRepository.getCities(true)) {
+                    is Result.Success -> {
+                        scheduleTemperatureUpdates()
+                    }
+                    is Result.Error -> {
+                        _error.postValue(result.exception.message)
                     }
                 }
-                is Result.Error -> {
-                    _error.postValue(result.exception.message)
-                }
+                _dataLoading.value = false
             }
-            _dataLoading.postValue(false)
         }
+        citiesRepository.observeCities().switchMap { filterCities(it) }
     }
+
+    val cities: LiveData<List<City>> = _cities
 
     private fun scheduleTemperatureUpdates(periodInSeconds: Long = UPDATES_PERIOD) {
         val runnableCode: Runnable = object : Runnable {
             override fun run() {
-                temperaturesHandlerActive = true
                 // Do something here on the main thread, we can call api since it's main safe
                 runBlocking {
                     when (val result = temperaturesRepository.getRandomTemperature(true)) {
@@ -70,9 +63,7 @@ class ForecastsViewModel @ViewModelInject constructor(
                                         this.name,
                                         temperatureUpdate
                                     )
-                                    citiesRepository.getCityByName(this.name)?.run {
-                                        postTemperatureUpdate(this)
-                                    }
+                                    Timber.v("Updated city: ${this.name}, newTemperature: $temperatureUpdate")
                                 }
                             }
                         }
@@ -84,16 +75,28 @@ class ForecastsViewModel @ViewModelInject constructor(
                 temperaturesHandler.postDelayed(this, periodInSeconds)
             }
         }
-        // Starts the initial runnable task by posting through the handler
-        temperaturesHandler.post(runnableCode)
+        // Starts the initial runnable task by posting through the handler, delayed by 5 seconds
+        temperaturesHandler.postDelayed(runnableCode, INITIAL_DELAY)
     }
 
-    private fun postTemperatureUpdate(updatedCity: City) {
-        _cities.value?.find { it.name == updatedCity.name }?.run {
-            this.temperature = updatedCity.temperature
-            this.lastUpdate = updatedCity.lastUpdate
-            _lastUpdatedCity.postValue(this)
+    fun loadCities(forceUpdate: Boolean) {
+        _forceUpdate.value = forceUpdate
+    }
+
+    private fun filterCities(citiesResult: Result<List<City>>): LiveData<List<City>> {
+        val result = MutableLiveData<List<City>>()
+
+        if (citiesResult is Result.Success) {
+            viewModelScope.launch {
+                result.value = citiesResult.data!!
+            }
+        } else if (citiesResult is Result.Error) {
+            result.value = emptyList()
+            _error.postValue(citiesResult.exception.message)
         }
+
+        return result
+
     }
 
     override fun onCleared() {
@@ -104,5 +107,6 @@ class ForecastsViewModel @ViewModelInject constructor(
 
     companion object {
         val UPDATES_PERIOD = TimeUnit.SECONDS.toMillis(3)
+        val INITIAL_DELAY = TimeUnit.SECONDS.toMillis(5)
     }
 }

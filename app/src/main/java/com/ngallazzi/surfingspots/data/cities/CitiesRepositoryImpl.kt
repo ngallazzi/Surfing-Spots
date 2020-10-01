@@ -1,5 +1,6 @@
 package com.ngallazzi.surfingspots.data.cities
 
+import androidx.lifecycle.LiveData
 import com.ngallazzi.surfingspots.Exceptions
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.local.CitiesLocalDataSource
@@ -13,8 +14,7 @@ import javax.inject.Inject
 
 class CitiesRepositoryImpl @Inject constructor(
     private val localDataSource: CitiesLocalDataSource,
-    private val remoteDataSource: CitiesRemoteDataSource,
-    private val temperaturesRepository: TemperaturesRepository
+    private val remoteDataSource: CitiesRemoteDataSource
 ) :
     CitiesRepository {
     override suspend fun getCities(forceUpdate: Boolean): Result<List<City>> {
@@ -23,7 +23,6 @@ class CitiesRepositoryImpl @Inject constructor(
                 when (val result = remoteDataSource.getCities()) {
                     is Result.Success -> {
                         result.data.apply {
-                            assignRandomTemperatures(this)
                             assignImages(this)
                             localDataSource.insertCities(this, LocalDateTime.now())
                         }
@@ -38,6 +37,10 @@ class CitiesRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeCities(): LiveData<Result<List<City>>> {
+        return localDataSource.observeCities()
+    }
+
     override suspend fun getLessRecentlyUpdatedCity(): City? {
         return localDataSource.getLessRecentlyUpdatedCity()
     }
@@ -49,17 +52,6 @@ class CitiesRepositoryImpl @Inject constructor(
     override suspend fun getCityByName(cityName: String): City? {
         return localDataSource.getCityByName(cityName)
     }
-
-    private suspend fun assignRandomTemperatures(cities: List<City>) =
-        try {
-            for (city in cities) {
-                val result =
-                    temperaturesRepository.getRandomTemperature(false) as Result.Success<Int?>
-                city.temperature = result.data
-            }
-        } catch (e: Exception) {
-            Timber.d(e)
-        }
 
     private fun assignImages(cities: List<City>) {
         for (city in cities) {
