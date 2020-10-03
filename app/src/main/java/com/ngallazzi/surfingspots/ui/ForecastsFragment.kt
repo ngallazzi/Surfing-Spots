@@ -1,6 +1,7 @@
 package com.ngallazzi.surfingspots.ui
 
 import android.os.Bundle
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,6 +50,10 @@ class ForecastsFragment : Fragment() {
 
         forecastsViewModel.cities.observe(viewLifecycleOwner, {
             cityAdapter.submitUpdate(it)
+        })
+
+        forecastsViewModel.citiesDownloaded.observe(viewLifecycleOwner, {
+            forecastsViewModel.scheduleTemperatureUpdates(looper = Looper.getMainLooper())
         })
 
         rvCitiesForecasts.apply {

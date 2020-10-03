@@ -59,6 +59,7 @@ dependencies {
     // Testing
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$androidx_test_version"
+    testImplementation "androidx.arch.core:core-testing:$arch_testing_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_core_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
 

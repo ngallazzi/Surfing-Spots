@@ -23,19 +23,21 @@ class CitiesRemoteDataSourceTest {
     private val testDispatcher = TestCoroutineDispatcher()
 
     class SuccessfulCitiesApi : CitiesApi {
-        override suspend fun getCities(): Response<List<City>> {
+        override suspend fun getCities(): Response<CitiesApiResponse> {
             return Response.success(
-                listOf(
-                    City("Chicago", 30),
-                    City("Miami", 3),
-                    City("Torino", 40)
+                CitiesApiResponse(
+                    listOf(
+                        City("Chicago", "", 30),
+                        City("Miami", "", 3),
+                        City("Torino", "", 40)
+                    )
                 )
             )
         }
     }
 
     class UnsuccessfulCityApi : CitiesApi {
-        override suspend fun getCities(): Response<List<City>> {
+        override suspend fun getCities(): Response<CitiesApiResponse> {
             return Response.error(500, ResponseBody.create(null, "generic error"))
         }
     }
