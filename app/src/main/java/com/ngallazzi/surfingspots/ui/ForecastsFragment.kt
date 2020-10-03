@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -39,8 +40,11 @@ class ForecastsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        forecastsViewModel.dataLoading.observe(viewLifecycleOwner, {
-            Timber.v("Loading: $it")
+        forecastsViewModel.dataLoading.observe(viewLifecycleOwner, { loading ->
+            when (loading) {
+                true -> LayoutUtils.crossFade(pbLoading, rvCitiesForecasts)
+                false -> LayoutUtils.crossFade(rvCitiesForecasts, pbLoading)
+            }
         })
 
         forecastsViewModel.cities.observe(viewLifecycleOwner, {
@@ -54,10 +58,10 @@ class ForecastsFragment : Fragment() {
         }
 
         forecastsViewModel.error.observe(viewLifecycleOwner, {
-            Snackbar.make(
-                clForecastContainer,
+            Toast.makeText(
+                requireContext(),
                 getString(R.string.an_error_has_occurred, it),
-                Snackbar.LENGTH_SHORT
+                Toast.LENGTH_SHORT
             ).show()
         })
     }
