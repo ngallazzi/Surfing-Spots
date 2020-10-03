@@ -1,15 +1,12 @@
 package com.ngallazzi.surfingspots.data.cities
 
 import androidx.lifecycle.LiveData
-import com.ngallazzi.surfingspots.Exceptions
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.local.CitiesLocalDataSource
 import com.ngallazzi.surfingspots.data.cities.remote.CitiesRemoteDataSource
-import com.ngallazzi.surfingspots.data.temperatures.TemperaturesRepository
 import org.threeten.bp.LocalDateTime
-import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
+import kotlin.random.Random
 
 
 class CitiesRepositoryImpl @Inject constructor(
@@ -24,6 +21,7 @@ class CitiesRepositoryImpl @Inject constructor(
                     is Result.Success -> {
                         result.data.apply {
                             assignImages(this)
+                            assignRandomTemperatures(this)
                             localDataSource.insertCities(this, LocalDateTime.now())
                         }
                         result
@@ -74,5 +72,16 @@ class CitiesRepositoryImpl @Inject constructor(
                     "https://fondazionefeltrinelli.it/app/uploads/2020/05/city.jpg"
             }
         }
+    }
+
+    private fun assignRandomTemperatures(cities: List<City>) {
+        for (city in cities) {
+            city.temperature = Random.nextInt(RANDOM_TEMPERATURE_FROM, RANDOM_TEMPERATURE_TO)
+        }
+    }
+
+    companion object {
+        const val RANDOM_TEMPERATURE_FROM = -30
+        const val RANDOM_TEMPERATURE_TO = 30
     }
 }
