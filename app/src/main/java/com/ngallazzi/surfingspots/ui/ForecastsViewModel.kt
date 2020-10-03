@@ -8,7 +8,6 @@ import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.cities.CitiesRepository
 import com.ngallazzi.surfingspots.data.cities.City
 import com.ngallazzi.surfingspots.data.temperatures.TemperaturesRepository
-import com.ngallazzi.surfingspots.di.MainLooper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
