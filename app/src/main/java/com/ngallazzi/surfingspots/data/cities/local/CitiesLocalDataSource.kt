@@ -32,22 +32,22 @@ class CitiesLocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun insertCities(cities: List<City>, date: LocalDateTime) = withContext(dispatcher) {
+    override suspend fun insertCities(cities: List<City>, date: LocalDateTime) = withContext(dispatcher) {
         for (city in cities) {
             city.lastUpdate = date
         }
         cityDao.insertCities(cities)
     }
 
-    suspend fun updateCityTemperature(cityName: String, temperature: Int, date: LocalDateTime) {
+    override suspend fun updateCityTemperature(cityName: String, temperature: Int, date: LocalDateTime) {
         cityDao.updateCityTemperature(cityName, temperature, date)
     }
 
-    suspend fun getLessRecentlyUpdatedCity(): City? {
+    override suspend fun getLessRecentlyUpdatedCity(): City? {
         return cityDao.getCities().minByOrNull { it.lastUpdate }
     }
 
-    suspend fun getCityByName(name: String): City? {
+    override suspend fun getCityByName(name: String): City? {
         return cityDao.getCityByName(name)
     }
 }

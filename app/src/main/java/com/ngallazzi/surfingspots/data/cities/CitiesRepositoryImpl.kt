@@ -2,27 +2,27 @@ package com.ngallazzi.surfingspots.data.cities
 
 import androidx.lifecycle.LiveData
 import com.ngallazzi.surfingspots.data.Result
-import com.ngallazzi.surfingspots.data.cities.local.CitiesLocalDataSource
-import com.ngallazzi.surfingspots.data.cities.remote.CitiesRemoteDataSource
+import com.ngallazzi.surfingspots.di.LocalDataSource
+import com.ngallazzi.surfingspots.di.RemoteDataSource
 import org.threeten.bp.LocalDateTime
 import javax.inject.Inject
 import kotlin.random.Random
 
 
 class CitiesRepositoryImpl @Inject constructor(
-    private val localDataSource: CitiesLocalDataSource,
-    private val remoteDataSource: CitiesRemoteDataSource
+    @LocalDataSource private val citiesLocalDataSource: CitiesDataSource,
+    @RemoteDataSource private val citiesRemoteDataSource: CitiesDataSource
 ) :
     CitiesRepository {
     override suspend fun getCities(forceUpdate: Boolean): Result<List<City>> {
         return when (forceUpdate) {
             true -> {
-                when (val result = remoteDataSource.getCities()) {
+                when (val result = citiesRemoteDataSource.getCities()) {
                     is Result.Success -> {
                         result.data.apply {
                             assignImages(this)
                             assignRandomTemperatures(this)
-                            localDataSource.insertCities(this, LocalDateTime.now())
+                            citiesLocalDataSource.insertCities(this, LocalDateTime.now())
                         }
                         result
                     }
@@ -31,24 +31,24 @@ class CitiesRepositoryImpl @Inject constructor(
                     }
                 }
             }
-            false -> localDataSource.getCities()
+            false -> citiesLocalDataSource.getCities()
         }
     }
 
     override fun observeCities(): LiveData<Result<List<City>>> {
-        return localDataSource.observeCities()
+        return citiesLocalDataSource.observeCities()
     }
 
     override suspend fun getLessRecentlyUpdatedCity(): City? {
-        return localDataSource.getLessRecentlyUpdatedCity()
+        return citiesLocalDataSource.getLessRecentlyUpdatedCity()
     }
 
     override suspend fun updateCityTemperature(cityName: String, temperature: Int) {
-        localDataSource.updateCityTemperature(cityName, temperature, LocalDateTime.now())
+        citiesLocalDataSource.updateCityTemperature(cityName, temperature, LocalDateTime.now())
     }
 
     override suspend fun getCityByName(cityName: String): City? {
-        return localDataSource.getCityByName(cityName)
+        return citiesLocalDataSource.getCityByName(cityName)
     }
 
     private fun assignImages(cities: List<City>) {

@@ -1,4 +1,4 @@
-package com.ngallazzi.surfingspots.data.cities.remote
+package com.ngallazzi.surfingspots.data.cities
 
 import com.ngallazzi.surfingspots.data.Result
 import com.ngallazzi.surfingspots.data.temperatures.TemperaturesRepository

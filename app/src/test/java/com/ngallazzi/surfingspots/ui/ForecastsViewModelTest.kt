@@ -1,10 +1,9 @@
-package com.ngallazzi.surfingspots
+package com.ngallazzi.surfingspots.ui
 
-import android.os.Looper
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.ngallazzi.surfingspots.data.cities.remote.FakeCitiesRepository
-import com.ngallazzi.surfingspots.data.cities.remote.FakeTemperaturesRepository
-import com.ngallazzi.surfingspots.ui.ForecastsViewModel
+import com.ngallazzi.surfingspots.MainCoroutineRule
+import com.ngallazzi.surfingspots.data.cities.FakeCitiesRepository
+import com.ngallazzi.surfingspots.data.cities.FakeTemperaturesRepository
 import com.ngallazzi.surfingspots.util.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers

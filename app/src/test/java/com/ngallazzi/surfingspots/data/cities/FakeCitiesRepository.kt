@@ -1,10 +1,8 @@
-package com.ngallazzi.surfingspots.data.cities.remote
+package com.ngallazzi.surfingspots.data.cities
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ngallazzi.surfingspots.data.Result
-import com.ngallazzi.surfingspots.data.cities.CitiesRepository
-import com.ngallazzi.surfingspots.data.cities.City
 
 class FakeCitiesRepository : CitiesRepository {
 

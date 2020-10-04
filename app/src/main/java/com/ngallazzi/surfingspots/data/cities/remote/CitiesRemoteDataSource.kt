@@ -8,6 +8,7 @@ import com.ngallazzi.surfingspots.data.cities.CitiesDataSource
 import com.ngallazzi.surfingspots.data.cities.City
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.threeten.bp.LocalDateTime
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -33,6 +34,28 @@ class CitiesRemoteDataSource @Inject constructor(private val service: CitiesApi)
 
     override fun observeCities(): LiveData<Result<List<City>>> {
         return observableCities
+    }
+
+    override suspend fun insertCities(cities: List<City>, updateDate: LocalDateTime) {
+        // Not required for the remote data source
+    }
+
+    override suspend fun updateCityTemperature(
+        cityName: String,
+        temperature: Int,
+        date: LocalDateTime
+    ) {
+        // Not required for the remote data source
+    }
+
+    override suspend fun getLessRecentlyUpdatedCity(): City? {
+        // Not required for the remote data source
+        return null
+    }
+
+    override suspend fun getCityByName(name: String): City? {
+        // Not required for the remote data source
+        return null
     }
 
 }
