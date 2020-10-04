@@ -36,7 +36,7 @@ class ForecastsViewModelTest {
 
     @Before
     fun setup() {
-        // Initialise the repository with no tasks.
+        // Initialise the repository with no cities.
         citiesRepository = FakeCitiesRepository()
         temperaturesRepository = FakeTemperaturesRepository()
     }
