@@ -2,5 +2,5 @@
 An app that helps users find the perfect spot to surf according to the local weather conditions
 
 # Instructions
-- git clone https://github.com/ngallazzi/Surfing-Spots
+- git clone https://github.com/ngallazzi/Surfing-Spots (master branch)
 - Simply open and run project in Android Studio, no particular indications
